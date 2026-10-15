@@ -635,7 +635,7 @@ async function boot() {
   $("routeName").value = state.routeName || "";
   renderSaved();
   resize(); fit();
-  setMode(metersPerPx() ? "route" : "bench");
+  setMode("bench");
   if (!img) $("hint").textContent = "Add a photo of your map to start";
 }
 new ResizeObserver(() => { resize(); }).observe(stage);
