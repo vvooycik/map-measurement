@@ -145,6 +145,7 @@ body[data-mode="route"] button.primary { background: var(--route); }
 <header>
   <h1>Map Measure</h1>
   <span class="scale-chip" id="scaleChip">no benchmark</span>
+  <button class="filebtn" id="newMap" hidden>New map</button>
   <label class="filebtn" for="file">Photo<input type="file" id="file" accept="image/*"></label>
 </header>
 
@@ -563,6 +564,24 @@ $("clear").onclick = () => {
   if (mode === "bench") state.bench.pts = []; else { state.route = []; state.activeSaved = -1; }
   commit(); renderSaved();
 };
+// Two taps: first arms the button, second wipes the photo, benchmark and saved routes.
+$("newMap").onclick = () => {
+  const b = $("newMap");
+  if (!b.dataset.armed) {
+    b.dataset.armed = "1"; b.textContent = "Tap again to clear"; b.style.color = "var(--danger)";
+    $("hint").textContent = "This removes the photo, benchmark and saved routes";
+    setTimeout(() => { delete b.dataset.armed; b.textContent = "New map"; b.style.color = ""; }, 3000);
+    return;
+  }
+  delete b.dataset.armed; b.textContent = "New map"; b.style.color = "";
+  img = null; state = EMPTY_STATE();
+  try { localStorage.removeItem(LS_KEY); } catch (e) {}
+  putImage(null);
+  $("benchLen").value = ""; $("routeName").value = "";
+  $("empty").hidden = false; b.hidden = true;
+  loupe.hidden = true;
+  renderSaved(); setMode("bench"); draw();
+};
 $("newRoute").onclick = () => { state.route = []; state.activeSaved = -1; state.routeName = ""; $("routeName").value = ""; commit(); renderSaved(); };
 $("saveBench").onclick = () => {
   const v = parseFloat(String($("benchLen").value).replace(",", "."));
@@ -593,7 +612,7 @@ $("file").addEventListener("change", async e => {
     const src = await shrink(await loadImg(raw));
     img = await loadImg(src);
     state = EMPTY_STATE();
-    $("empty").hidden = true;
+    $("empty").hidden = true; $("newMap").hidden = false;
     $("benchLen").value = ""; $("routeName").value = "";
     saveState(); putImage(src); // storage is best-effort, never blocks the UI
     renderSaved(); fit(); setMode("bench");
@@ -630,7 +649,7 @@ async function boot() {
     try { img = await loadImg(stored); state = saved; } catch (e) { img = null; }
   }
   if (!img) state = EMPTY_STATE();
-  $("empty").hidden = !!img;
+  $("empty").hidden = !!img; $("newMap").hidden = !img;
   $("benchLen").value = state.bench.meters || "";
   $("routeName").value = state.routeName || "";
   renderSaved();
