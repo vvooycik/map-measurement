@@ -180,12 +180,12 @@ body[data-mode="route"] button.primary { background: var(--route); }
   </div>
 
   <div class="row" id="benchControls">
-    <div class="field grow"><input id="benchLen" type="number" inputmode="decimal" min="0" step="any" placeholder="Length"><span>m</span></div>
+    <div class="field grow"><input id="benchLen" type="number" inputmode="decimal" min="0" step="any"><span>m</span></div>
     <button class="primary" id="saveBench">Save benchmark</button>
   </div>
 
   <div class="row" id="routeControls">
-    <input id="routeName" class="grow" type="text" placeholder="Route name, e.g. 966 → 544"
+    <input id="routeName" class="grow" type="text" placeholder="Route name"
       style="height:42px;padding:0 12px;border-radius:8px;border:1px solid var(--line);background:var(--ground);color:var(--ink);font:inherit;box-sizing:border-box">
     <button class="primary" id="saveRoute">Save</button>
   </div>
@@ -219,7 +219,7 @@ let view = { s: 1, tx: 0, ty: 0 };
 let dpr = 1;
 
 /* ---------- storage (device-only) ---------- */
-const LS_KEY = "mapmeasure.state.v1";
+const LS_KEY = "mapmeasure.state.v2";
 function saveState() {
   try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (e) {}
 }
@@ -229,7 +229,7 @@ function loadState() {
 function idb() {
   return new Promise((res, rej) => {
     try {
-      const r = indexedDB.open("mapmeasure", 1);
+      const r = indexedDB.open("mapmeasure2", 1);
       r.onupgradeneeded = () => r.result.createObjectStore("img");
       r.onsuccess = () => res(r.result);
       r.onerror = () => rej(r.error);
